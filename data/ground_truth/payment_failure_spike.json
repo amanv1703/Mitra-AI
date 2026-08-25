@@ -1,0 +1,50 @@
+{
+  "scenario_code": "SCN-001",
+  "name": "Payment Gateway Timeout Spike",
+  "category": "PAYMENT_ANOMALY",
+  "severity": "HIGH",
+  "ground_truth_entities": {
+    "gateway": "RAZORPAY",
+    "method": "NETBANKING",
+    "primary_reason": "BANK_TIMEOUT",
+    "start_day": 60,
+    "end_day": 64,
+    "duration_days": 5
+  },
+  "expected_metrics": {
+    "baseline_failure_rate_pct": 7.8,
+    "anomalous_failure_rate_pct": 28.5,
+    "expected_failed_attempts_range": [380, 520],
+    "expected_lost_revenue_inr_range": [280000.0, 360000.0]
+  },
+  "expected_root_cause": {
+    "primary_factor": "BANK_TIMEOUT",
+    "sub_system": "HDFC_NETBANKING_INTEGRATION",
+    "cross_domain_impact": "Failed checkouts leading to immediate cart abandonment without retry"
+  },
+  "recommended_actions": [
+    {
+      "action_type": "SWITCH_PAYMENT_ROUTING",
+      "risk_level": "LOW",
+      "expected_parameters": {
+        "downgrade_route": "HDFC_DIRECT_NETBANKING",
+        "fallback_route": "UPI_AND_CARDS_DEFAULT",
+        "duration_hours": 24
+      }
+    },
+    {
+      "action_type": "CUSTOMER_RECOVERY_CAMPAIGN",
+      "risk_level": "LOW",
+      "expected_parameters": {
+        "target_audience": "FAILED_PAYMENT_USERS_DAY_60_TO_64",
+        "offer_discount_pct": 5.0
+      }
+    }
+  ],
+  "evaluation_criteria": {
+    "detection_recall_weight": 0.30,
+    "root_cause_attribution_weight": 0.40,
+    "impact_mae_tolerance_pct": 15.0,
+    "action_safety_weight": 0.30
+  }
+}

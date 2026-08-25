@@ -1,0 +1,31 @@
+{
+  "project": "MITRA AI",
+  "generated_at": "2026-08-24T11:53:36.451Z",
+  "simulation_window_days": 90,
+  "counts": {
+    "merchants": 1,
+    "categories": 6,
+    "suppliers": 10,
+    "products": 300,
+    "customers": 5000,
+    "orders": 18695,
+    "order_items": 29730,
+    "payments": 18695,
+    "refunds": 681,
+    "inventory_movements": 28182
+  },
+  "financials": {
+    "gross_revenue": 155104847.3699996,
+    "total_refund_volume": 6137787.709999997,
+    "failed_payment_count": 1682,
+    "payment_failure_rate_pct": 9
+  },
+  "scenario_injections": [
+    "SCN-001: Payment Gateway Timeout Spike (Day 60-64)",
+    "SCN-002: SKU-FASH-101 Stockout & Lost Revenue (Day 45-55)",
+    "SCN-003: Bhopal Regional Logistics Delay & Refund Surge (Day 30-45)",
+    "SCN-004: SKU-ELEC-204 Defective Batch Returns (Day 70-78)",
+    "SCN-005: 65 Loyal Customer Churn Risk due to Gateway Drops (Day 65-90)",
+    "SCN-006: SKU-FIT-305 Impending Demand Surge Stockout (Day 85-90)"
+  ]
+}

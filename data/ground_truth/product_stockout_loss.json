@@ -1,0 +1,54 @@
+{
+  "scenario_code": "SCN-002",
+  "name": "Hero Product Stockout & Lost Revenue",
+  "category": "INVENTORY_STOCKOUT",
+  "severity": "CRITICAL",
+  "ground_truth_entities": {
+    "target_sku": "SKU-FASH-101",
+    "product_name": "Premium Cotton Oxford Shirt",
+    "category": "Fashion & Apparel",
+    "supplier_id": 1,
+    "supplier_name": "Vardhman Textiles Hub",
+    "start_day": 45,
+    "stockout_start_day": 49,
+    "stockout_end_day": 55,
+    "stockout_duration_days": 6
+  },
+  "expected_metrics": {
+    "historical_revenue_share_pct": 22.8,
+    "daily_lost_units_range": [16, 24],
+    "total_lost_orders_range": [95, 145],
+    "estimated_lost_revenue_inr_range": [160000.0, 220000.0]
+  },
+  "expected_root_cause": {
+    "primary_factor": "DEMAND_SURGE_UNMATCHED_BY_LEAD_TIME",
+    "supplier_lead_time_days": 6,
+    "cross_domain_impact": "Sales velocity spike depleted safety stock 4 days before scheduled reorder arrival"
+  },
+  "recommended_actions": [
+    {
+      "action_type": "INVENTORY_REORDER",
+      "risk_level": "MEDIUM",
+      "expected_parameters": {
+        "sku": "SKU-FASH-101",
+        "recommended_reorder_qty_range": [250, 400],
+        "expedited_shipping": true
+      }
+    },
+    {
+      "action_type": "PRICE_ADJUSTMENT",
+      "risk_level": "HIGH",
+      "expected_parameters": {
+        "sku": "SKU-FASH-101",
+        "temp_price_hike_pct": 5.0,
+        "rationale": "Throttle demand until shipment lands"
+      }
+    }
+  ],
+  "evaluation_criteria": {
+    "detection_recall_weight": 0.30,
+    "root_cause_attribution_weight": 0.40,
+    "impact_mae_tolerance_pct": 15.0,
+    "action_safety_weight": 0.30
+  }
+}

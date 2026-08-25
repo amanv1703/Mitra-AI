@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "total_scenarios": 6,
+  "description": "MITRA AI Ground Truth Benchmark Specification for Cross-Domain Anomaly Detection & AI Actions",
+  "scenarios": [
+    {
+      "code": "SCN-001",
+      "file": "payment_failure_spike.json",
+      "name": "Payment Gateway Timeout Spike",
+      "domain": "PAYMENTS",
+      "severity": "HIGH"
+    },
+    {
+      "code": "SCN-002",
+      "file": "product_stockout_loss.json",
+      "name": "Hero Product Stockout & Lost Revenue",
+      "domain": "INVENTORY",
+      "severity": "CRITICAL"
+    },
+    {
+      "code": "SCN-003",
+      "file": "refund_spike_delivery.json",
+      "name": "Regional Delivery Bottleneck Causing Refund Surge",
+      "domain": "REFUNDS",
+      "severity": "HIGH"
+    },
+    {
+      "code": "SCN-004",
+      "file": "supplier_quality_defect.json",
+      "name": "Supplier Batch Quality Defect",
+      "domain": "SUPPLIERS",
+      "severity": "HIGH"
+    },
+    {
+      "code": "SCN-005",
+      "file": "customer_churn_risk.json",
+      "name": "High-Value Customer Churn Risk",
+      "domain": "CUSTOMERS",
+      "severity": "HIGH"
+    },
+    {
+      "code": "SCN-006",
+      "file": "impending_stockout_surge.json",
+      "name": "Impending Stockout via Demand Surge",
+      "domain": "INVENTORY",
+      "severity": "CRITICAL"
+    }
+  ]
+}

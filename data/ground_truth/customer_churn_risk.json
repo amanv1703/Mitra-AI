@@ -1,0 +1,48 @@
+{
+  "scenario_code": "SCN-005",
+  "name": "High-Value Customer Churn Risk",
+  "category": "CUSTOMER_CHURN_PREVENTION",
+  "severity": "HIGH",
+  "ground_truth_entities": {
+    "target_cohort": "VIP_LOYAL",
+    "customer_count": 65,
+    "start_day": 65,
+    "end_day": 90,
+    "duration_days": 25
+  },
+  "expected_metrics": {
+    "min_failed_checkout_attempts": 2,
+    "dormant_days_threshold": 25,
+    "annual_historical_spend_per_customer_inr": 32000.0,
+    "total_mrr_at_risk_inr_range": [180000.0, 240000.0]
+  },
+  "expected_root_cause": {
+    "primary_factor": "REPEATED_CHECKOUT_FRICTION_AND_PAYMENT_FAILURE",
+    "cohort_type": "LOYAL_HIGH_LTV",
+    "cross_domain_impact": "Payment gateway drops directly triggered frustration and order abandonment among top 5% revenue-generating customers"
+  },
+  "recommended_actions": [
+    {
+      "action_type": "CUSTOMER_RECOVERY_CAMPAIGN",
+      "risk_level": "LOW",
+      "expected_parameters": {
+        "audience": "VIP_FAILED_CHECKOUT_CHURN_RISK",
+        "channel": "WHATSAPP_AND_EMAIL",
+        "offer": "EXCLUSIVE_10_PCT_VIP_APOLOGY_DISCOUNT"
+      }
+    },
+    {
+      "action_type": "SWITCH_PAYMENT_ROUTING",
+      "risk_level": "LOW",
+      "expected_parameters": {
+        "enable_instant_upi_intent_fallback": true
+      }
+    }
+  ],
+  "evaluation_criteria": {
+    "detection_recall_weight": 0.30,
+    "root_cause_attribution_weight": 0.40,
+    "impact_mae_tolerance_pct": 15.0,
+    "action_safety_weight": 0.30
+  }
+}

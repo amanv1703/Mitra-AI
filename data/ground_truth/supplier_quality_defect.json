@@ -1,0 +1,53 @@
+{
+  "scenario_code": "SCN-004",
+  "name": "Supplier Batch Quality Defect",
+  "category": "SUPPLIER_QUALITY_ALERT",
+  "severity": "HIGH",
+  "ground_truth_entities": {
+    "target_sku": "SKU-ELEC-104",
+    "product_name": "Active Noise Cancelling Wireless Earbuds",
+    "supplier_id": 6,
+    "supplier_name": "Noida Tech Components",
+    "start_day": 70,
+    "end_day": 78,
+    "duration_days": 9
+  },
+  "expected_metrics": {
+    "baseline_return_rate_pct": 2.1,
+    "anomalous_return_rate_pct": 24.8,
+    "damaged_reason_share_pct": 82.0,
+    "defective_units_count_range": [35, 55],
+    "replacement_and_refund_cost_inr_range": [85000.0, 130000.0]
+  },
+  "expected_root_cause": {
+    "primary_factor": "SUPPLIER_BATCH_MANUFACTURING_DEFECT",
+    "supplier_id": 6,
+    "cross_domain_impact": "Defective components in batch #NC-2024-B9 caused abnormal DOA / audio malfunction returns"
+  },
+  "recommended_actions": [
+    {
+      "action_type": "FLAG_DEFECTIVE_BATCH",
+      "risk_level": "MEDIUM",
+      "expected_parameters": {
+        "sku": "SKU-ELEC-204",
+        "supplier_id": 6,
+        "action": "QUARANTINE_REMAINING_STOCK"
+      }
+    },
+    {
+      "action_type": "RESTOCK_SUPPLIER_ALERT",
+      "risk_level": "LOW",
+      "expected_parameters": {
+        "supplier_id": 6,
+        "claim_amount_inr": 110000.0,
+        "type": "WARRANTY_REIMBURSEMENT_CLAIM"
+      }
+    }
+  ],
+  "evaluation_criteria": {
+    "detection_recall_weight": 0.30,
+    "root_cause_attribution_weight": 0.40,
+    "impact_mae_tolerance_pct": 15.0,
+    "action_safety_weight": 0.30
+  }
+}

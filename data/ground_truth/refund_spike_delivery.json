@@ -1,0 +1,51 @@
+{
+  "scenario_code": "SCN-003",
+  "name": "Regional Delivery Bottleneck Causing Refund Surge",
+  "category": "LOGISTICS_REFUND_SURGE",
+  "severity": "HIGH",
+  "ground_truth_entities": {
+    "target_city": "Bhopal",
+    "target_state": "Madhya Pradesh",
+    "carrier": "Bhopal Hub Logistics",
+    "start_day": 30,
+    "end_day": 45,
+    "duration_days": 16
+  },
+  "expected_metrics": {
+    "baseline_city_refund_rate_pct": 3.2,
+    "anomalous_city_refund_rate_pct": 19.4,
+    "excess_refund_count_range": [90, 135],
+    "excess_refund_amount_inr_range": [120000.0, 175000.0],
+    "avg_delivery_delay_days": 6.8
+  },
+  "expected_root_cause": {
+    "primary_factor": "REGIONAL_CARRIER_BOTTLENECK",
+    "sub_system": "BHOPAL_LAST_MILE_DISTRIBUTION",
+    "cross_domain_impact": "Delivery delay exceeding SLA threshold caused customer cancellations and delivery refusal refunds"
+  },
+  "recommended_actions": [
+    {
+      "action_type": "NOTIFY_CARRIER_ISSUE",
+      "risk_level": "LOW",
+      "expected_parameters": {
+        "carrier_name": "Bhopal Hub Logistics",
+        "city": "Bhopal",
+        "action": "ESCALATE_SLA_BREACH"
+      }
+    },
+    {
+      "action_type": "CUSTOMER_RECOVERY_CAMPAIGN",
+      "risk_level": "LOW",
+      "expected_parameters": {
+        "target_city": "Bhopal",
+        "communication": "Proactive apology SMS with delivery status tracker"
+      }
+    }
+  ],
+  "evaluation_criteria": {
+    "detection_recall_weight": 0.30,
+    "root_cause_attribution_weight": 0.40,
+    "impact_mae_tolerance_pct": 15.0,
+    "action_safety_weight": 0.30
+  }
+}

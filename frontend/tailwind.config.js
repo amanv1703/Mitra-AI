@@ -1,0 +1,70 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
+        surface: {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+        },
+        status: {
+          success: {
+            bg: '#ecfdf5',
+            text: '#065f46',
+            border: '#a7f3d0',
+            dot: '#10b981'
+          },
+          warning: {
+            bg: '#fffbeb',
+            text: '#92400e',
+            border: '#fde68a',
+            dot: '#f59e0b'
+          },
+          danger: {
+            bg: '#fef2f2',
+            text: '#991b1b',
+            border: '#fecaca',
+            dot: '#ef4444'
+          },
+          info: {
+            bg: '#eff6ff',
+            text: '#1e40af',
+            border: '#bfdbfe',
+            dot: '#3b82f6'
+          }
+        }
+      },
+      boxShadow: {
+        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        'card-hover': '0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04)',
+        'drawer': '-4px 0 24px rgba(0, 0, 0, 0.1)',
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+      }
+    },
+  },
+  plugins: [],
+}

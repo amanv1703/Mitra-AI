@@ -1,0 +1,35 @@
+{
+  "name": "mitra-ai",
+  "version": "0.1.0",
+  "description": "MITRA AI — AI Business Operator for Modern Merchants",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "test": "npm test --prefix backend",
+    "test:backend": "npm test --prefix backend",
+    "evaluate:ai": "node scripts/evaluateAgent.js",
+    "evaluate:intelligence": "node scripts/evaluateIntelligence.js",
+    "evaluate:actions": "node scripts/evaluateActions.js",
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "generate:data": "node scripts/generateDataset.js",
+    "db:schema": "node scripts/resetDatabase.js",
+    "db:seed": "node scripts/seedDatabase.js",
+    "db:reset": "node scripts/resetDatabase.js && node scripts/seedDatabase.js"
+  },
+  "keywords": [
+    "ai-agent",
+    "business-intelligence",
+    "root-cause-analysis",
+    "e-commerce",
+    "explainable-ai",
+    "anomaly-detection",
+    "mitra-ai"
+  ],
+  "author": "Mitra AI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

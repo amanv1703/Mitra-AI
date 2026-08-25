@@ -1,0 +1,70 @@
+{
+  "timestamp": "2026-08-25T09:46:45.685Z",
+  "metrics": {
+    "precision": 100,
+    "recall": 100,
+    "f1Score": 100,
+    "rootCauseAccuracy": 100,
+    "falsePositiveRate": 0,
+    "avgImpactError": 33.25,
+    "overallIntelligenceScore": 98.4
+  },
+  "scenarioEvaluations": [
+    {
+      "scenario": "SCN-005",
+      "name": "High-Value Customer Churn Risk",
+      "detection": "DETECTED ✅",
+      "rootCause": "ACCURATE ✅",
+      "impactError": "17.4%",
+      "confidence": "91%"
+    },
+    {
+      "scenario": "SCN-006",
+      "name": "Impending Stockout via Demand Surge",
+      "detection": "DETECTED ✅",
+      "rootCause": "ACCURATE ✅",
+      "impactError": "26.1%",
+      "confidence": "93%"
+    },
+    {
+      "scenario": "SCN-001",
+      "name": "Payment Gateway Timeout Spike",
+      "detection": "DETECTED ✅",
+      "rootCause": "ACCURATE ✅",
+      "impactError": "100.0%",
+      "confidence": "94%"
+    },
+    {
+      "scenario": "SCN-002",
+      "name": "Hero Product Stockout & Lost Revenue",
+      "detection": "DETECTED ✅",
+      "rootCause": "ACCURATE ✅",
+      "impactError": "26.1%",
+      "confidence": "93%"
+    },
+    {
+      "scenario": "SCN-003",
+      "name": "Regional Delivery Bottleneck Causing Refund Surge",
+      "detection": "DETECTED ✅",
+      "rootCause": "ACCURATE ✅",
+      "impactError": "3.3%",
+      "confidence": "92%"
+    },
+    {
+      "scenario": "SCN-004",
+      "name": "Supplier Batch Quality Defect",
+      "detection": "DETECTED ✅",
+      "rootCause": "ACCURATE ✅",
+      "impactError": "26.7%",
+      "confidence": "93%"
+    }
+  ],
+  "detectedInsightsCount": 5,
+  "runContext": {
+    "runId": "RUN-1787651205681",
+    "startedAt": "2026-08-25T09:46:44.805Z",
+    "completedAt": "2026-08-25T09:46:45.681Z",
+    "durationMs": 876,
+    "status": "SUCCESS"
+  }
+}

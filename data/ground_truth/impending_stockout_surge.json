@@ -1,0 +1,56 @@
+{
+  "scenario_code": "SCN-006",
+  "name": "Impending Stockout via Demand Surge",
+  "category": "PREDICTIVE_INVENTORY_RISK",
+  "severity": "CRITICAL",
+  "ground_truth_entities": {
+    "target_sku": "SKU-FIT-105",
+    "product_name": "Ergonomic High-Density Yoga Mat",
+    "category": "Sports & Fitness",
+    "supplier_id": 8,
+    "supplier_name": "Coimbatore Precision Gear",
+    "start_day": 85,
+    "current_day": 90,
+    "supplier_lead_time_days": 5
+  },
+  "expected_metrics": {
+    "historical_daily_velocity": 8.5,
+    "current_surged_daily_velocity": 20.4,
+    "current_inventory_units": 45,
+    "estimated_days_to_stockout": 2.2,
+    "lead_time_shortfall_days": 2.8,
+    "projected_lost_revenue_inr_range": [70000.0, 95000.0]
+  },
+  "expected_root_cause": {
+    "primary_factor": "VIRAL_DEMAND_SURGE_OUTPACING_REORDER_CYCLE",
+    "days_of_stock_remaining": 2.2,
+    "lead_time_days": 5,
+    "cross_domain_impact": "Sudden 140% spike in orders will lead to stock exhaustion before standard supplier order can arrive"
+  },
+  "recommended_actions": [
+    {
+      "action_type": "INVENTORY_REORDER",
+      "risk_level": "MEDIUM",
+      "expected_parameters": {
+        "sku": "SKU-FIT-305",
+        "recommended_units": 250,
+        "mode": "EXPEDITED_AIR_FREIGHT"
+      }
+    },
+    {
+      "action_type": "PRICE_ADJUSTMENT",
+      "risk_level": "HIGH",
+      "expected_parameters": {
+        "sku": "SKU-FIT-305",
+        "price_increase_pct": 8.0,
+        "goal": "PRESERVE_STOCK_FOR_VIP_CUSTOMERS"
+      }
+    }
+  ],
+  "evaluation_criteria": {
+    "detection_recall_weight": 0.30,
+    "root_cause_attribution_weight": 0.40,
+    "impact_mae_tolerance_pct": 15.0,
+    "action_safety_weight": 0.30
+  }
+}
