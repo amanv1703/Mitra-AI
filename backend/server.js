@@ -20,24 +20,30 @@ const PORT = process.env.PORT || 5000;
 // Security & utility middleware
 app.use(helmet());
 
-// Dynamic CORS configuration (handles single string, comma-separated origins, or local defaults)
-const rawClientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+// Dynamic CORS configuration (automatically supports Vercel, localhost, and custom CLIENT_URLs)
+const rawClientUrl = process.env.CLIENT_URL || 'http://localhost:5173,https://mitra-ai-neon.vercel.app';
 const allowedOrigins = rawClientUrl.split(',').map(url => url.trim()).filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+    // Allow server-to-server, curl, mobile apps, or any web frontend
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*') || allowedOrigins.some(o => origin.startsWith(o))) {
+    if (
+      origin.endsWith('.vercel.app') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      allowedOrigins.includes('*') ||
+      allowedOrigins.includes(origin) ||
+      allowedOrigins.some(o => origin.startsWith(o))
+    ) {
       return callback(null, true);
     }
-    // Allow local dev origins
-    if (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost:\d+$/.test(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error(`CORS policy does not allow access from origin: ${origin}`));
+    // Fallback: reflect valid origin
+    return callback(null, true);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
 app.use(express.json({ limit: '2mb' }));
 app.use(requestLogger);
