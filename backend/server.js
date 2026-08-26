@@ -17,37 +17,28 @@ const apiRoutes = require('./src/routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-process.on('uncaughtException', (err) => {
-  console.error('💥 Uncaught Exception:', err);
-});
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('💥 Unhandled Rejection:', reason);
-});
+// Security & utility middleware
+app.use(helmet());
 
-// 1. CORS headers on ALL requests and preflight OPTIONS
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  }
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept,Origin');
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
-});
+// Dynamic CORS configuration (handles single string, comma-separated origins, or local defaults)
+const rawClientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const allowedOrigins = rawClientUrl.split(',').map(url => url.trim()).filter(Boolean);
 
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*') || allowedOrigins.some(o => origin.startsWith(o))) {
+      return callback(null, true);
+    }
+    // Allow local dev origins
+    if (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost:\d+$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS policy does not allow access from origin: ${origin}`));
+  },
   credentials: true
 }));
-
-// Security & utility middleware
-app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json({ limit: '2mb' }));
 app.use(requestLogger);
 
@@ -78,11 +69,11 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`📡 Environment: [${process.env.NODE_ENV || 'development'}]`);
     console.log(`🌐 Base API URL: http://localhost:${PORT}/api`);
     console.log('=============================================================================');
-    
+
     const dbHealth = await checkDatabaseHealth();
     if (dbHealth.connected) {
       console.log(`✅ MySQL Database [${dbHealth.database}] connected successfully (${dbHealth.latencyMs}ms latency).`);
-      
+
       // Start Proactive Intelligence Scheduler if enabled
       if (process.env.ENABLE_PROACTIVE_SCHEDULER !== 'false') {
         const { proactiveScheduler } = require('./src/proactive');
@@ -95,6 +86,9 @@ if (process.env.NODE_ENV !== 'test') {
       console.warn('👉 Verify MySQL is running and DB_USER/DB_PASSWORD in .env match.');
     }
   });
+}
+
+module.exports = app;
 }
 
 module.exports = app;

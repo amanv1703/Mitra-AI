@@ -3,20 +3,17 @@ const path = require('path');
 const mysql = require('mysql2/promise');
 const { DB } = require('./env');
 
-const isAiven = Boolean(DB.host && (DB.host.includes('aivencloud.com') || DB.host.includes('aiven')));
-
 const pool = mysql.createPool({
-  host: String(DB.host).trim(),
-  port: Number(DB.port) || 15274,
-  user: String(DB.user).trim(),
-  password: String(DB.password).trim(),
-  database: String(DB.name).trim(),
+  host: DB.host,
+  port: DB.port,
+  user: DB.user,
+  password: DB.password,
+  database: DB.name,
   waitForConnections: true,
-  connectionLimit: Number(DB.connectionLimit) || 10,
+  connectionLimit: DB.connectionLimit,
   queueLimit: 0,
   decimalNumbers: true,
-  dateStrings: true,
-  ssl: isAiven || process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+  dateStrings: true
 });
 
 let isMysqlOnline = null;
