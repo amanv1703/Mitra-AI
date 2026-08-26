@@ -8,7 +8,7 @@ const { query } = require('../config/db');
 class InventoryRepository {
   async getInventory({ limit, offset, search, categoryId }) {
     const params = [];
-    const whereClauses = ['p.status = "ACTIVE"'];
+    const whereClauses = ["p.status = 'ACTIVE'"];
 
     if (search) {
       whereClauses.push('(p.name LIKE ? OR p.sku LIKE ?)');
@@ -55,7 +55,7 @@ class InventoryRepository {
 
   async countInventory({ search, categoryId }) {
     const params = [];
-    const whereClauses = ['p.status = "ACTIVE"'];
+    const whereClauses = ["p.status = 'ACTIVE'"];
 
     if (search) {
       whereClauses.push('(p.name LIKE ? OR p.sku LIKE ?)');

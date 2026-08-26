@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
@@ -80,6 +80,11 @@ export const productsApi = {
   getProducts: (params) => apiClient.get('/products', { params }),
   getProductById: (id) => apiClient.get(`/products/${id}`),
   getPerformance: (params) => apiClient.get('/products/performance', { params })
+};
+
+// 8.1 Categories API
+export const categoriesApi = {
+  getCategories: () => apiClient.get('/categories')
 };
 
 // 9. Refunds API

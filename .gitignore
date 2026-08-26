@@ -47,7 +47,9 @@ frontend/dist/
 *.sln
 *.sw?
 
-# Raw generated heavy dumps (optional exclusion)
+# Raw generated heavy dumps and database backups
 data/raw/*.csv
 data/raw/*.json
 !data/raw/.gitkeep
+database/*.sql
+*.sql

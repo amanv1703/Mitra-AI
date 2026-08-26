@@ -6,8 +6,8 @@ const deliveryMetrics = require('../metrics/deliveryMetrics');
 const { ANOMALY_THRESHOLDS } = require('../config/intelligenceConfig');
 
 class DeliveryAnomalies {
-  async detectDeliveryAnomalies(fromSql, toSql) {
-    const cityPerformance = await deliveryMetrics.getCityDeliveryPerformance(fromSql, toSql);
+  async detectDeliveryAnomalies(fromSql, toSql, precalculatedCityPerformance = null) {
+    const cityPerformance = precalculatedCityPerformance || await deliveryMetrics.getCityDeliveryPerformance(fromSql, toSql);
     const anomalies = [];
     const thresholdPct = ANOMALY_THRESHOLDS.DELIVERY_DELAY.CRITICAL_DELAY_RATE_PCT;
 

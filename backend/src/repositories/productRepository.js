@@ -8,8 +8,7 @@ const { query } = require('../config/db');
 class ProductRepository {
   async findProducts({ limit, offset, categoryId, search, sortBy = 'selling_price', sortOrder = 'DESC' }) {
     const params = [];
-    const whereClauses = ['p.status = "ACTIVE"'];
-
+const whereClauses = ["p.status = 'ACTIVE'"];
     if (categoryId) {
       whereClauses.push('p.category_id = ?');
       params.push(categoryId);
@@ -57,7 +56,7 @@ class ProductRepository {
 
   async countProducts({ categoryId, search }) {
     const params = [];
-    const whereClauses = ['status = "ACTIVE"'];
+    const whereClauses = ["status = 'ACTIVE'"];
 
     if (categoryId) {
       whereClauses.push('category_id = ?');

@@ -29,8 +29,42 @@ const businessHealthScore = require('../risk/businessHealthScore');
 const insightSchema = require('./insightSchema');
 const { deduplicationManager } = require('./deduplication');
 
+const analysisCache = new Map();
+const inFlightRequests = new Map();
+const CACHE_TTL_MS = 30000; // 30-second TTL for identical time slices
+
 class InsightEngine {
   async runIntelligenceAnalysis(fromSql = '2000-01-01 00:00:00', toSql = '2099-12-31 23:59:59') {
+    const cacheKey = `${fromSql}__${toSql}`;
+    const now = Date.now();
+
+    // 1. Check TTL cache
+    const cached = analysisCache.get(cacheKey);
+    if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
+      return cached.data;
+    }
+
+    // 2. Check in-flight promise to coalesce concurrent requests
+    if (inFlightRequests.has(cacheKey)) {
+      return inFlightRequests.get(cacheKey);
+    }
+
+    const executionPromise = this._executeAnalysisPipeline(fromSql, toSql)
+      .then(result => {
+        analysisCache.set(cacheKey, { timestamp: Date.now(), data: result });
+        inFlightRequests.delete(cacheKey);
+        return result;
+      })
+      .catch(err => {
+        inFlightRequests.delete(cacheKey);
+        throw err;
+      });
+
+    inFlightRequests.set(cacheKey, executionPromise);
+    return executionPromise;
+  }
+
+  async _executeAnalysisPipeline(fromSql, toSql) {
     const startTime = Date.now();
 
     // 1. Collect multi-domain operational metrics
@@ -60,7 +94,7 @@ class InsightEngine {
       refundMetrics.getCityRefundRates(fromSql, toSql)
     ]);
 
-    // 2. Detect Anomalies across all 5 domains
+    // 2. Detect Anomalies across all 5 domains using pre-calculated metrics
     const [
       paymentAnomList,
       inventoryAnomList,
@@ -68,11 +102,11 @@ class InsightEngine {
       refundAnomList,
       deliveryAnomList
     ] = await Promise.all([
-      paymentAnomalies.detectPaymentAnomalies(fromSql, toSql),
-      inventoryAnomalies.detectInventoryAnomalies(),
+      paymentAnomalies.detectPaymentAnomalies(fromSql, toSql, payments),
+      inventoryAnomalies.detectInventoryAnomalies(productMatrix),
       salesAnomalies.detectSalesAnomalies(),
-      refundAnomalies.detectRefundAnomalies(fromSql, toSql),
-      deliveryAnomalies.detectDeliveryAnomalies(fromSql, toSql)
+      refundAnomalies.detectRefundAnomalies(fromSql, toSql, { productRefunds, cityRefunds }),
+      deliveryAnomalies.detectDeliveryAnomalies(fromSql, toSql, cityDelivery)
     ]);
 
     const allAnomalies = [

@@ -7,8 +7,8 @@ const anomalyEngine = require('./anomalyEngine');
 const { ANOMALY_THRESHOLDS } = require('../config/intelligenceConfig');
 
 class PaymentAnomalies {
-  async detectPaymentAnomalies(fromSql, toSql) {
-    const metrics = await paymentMetrics.calculatePaymentMetrics(fromSql, toSql);
+  async detectPaymentAnomalies(fromSql, toSql, precalculatedMetrics = null) {
+    const metrics = precalculatedMetrics || await paymentMetrics.calculatePaymentMetrics(fromSql, toSql);
     const dailySeries = await paymentMetrics.getDailyPaymentTimeSeries(fromSql, toSql);
 
     const baselineRate = ANOMALY_THRESHOLDS.PAYMENT_FAILURE_RATE.BASELINE;

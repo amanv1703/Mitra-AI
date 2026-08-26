@@ -62,22 +62,38 @@ class RefundMetrics {
         p.sku,
         p.name AS product_name,
         s.name AS supplier_name,
-        COALESCE(SUM(oi.quantity), 0) AS units_sold,
-        COUNT(DISTINCT r.id) AS refund_count,
-        COALESCE(SUM(r.amount), 0) AS refund_amount,
-        ROUND((COUNT(DISTINCT r.id) / NULLIF(COUNT(DISTINCT oi.order_id), 0)) * 100, 2) AS refund_rate_pct,
-        SUM(CASE WHEN r.reason_code = 'DAMAGED_PRODUCT' THEN 1 ELSE 0 END) AS damaged_count
-      FROM products p
+        COALESCE(sales.units_sold, 0) AS units_sold,
+        ref.refund_count,
+        ref.refund_amount,
+        ROUND((ref.refund_count / NULLIF(sales.order_count, 0)) * 100, 2) AS refund_rate_pct,
+        ref.damaged_count
+      FROM (
+        SELECT 
+          oi.product_id,
+          COUNT(DISTINCT r.id) AS refund_count,
+          SUM(r.amount) AS refund_amount,
+          SUM(CASE WHEN r.reason_code = 'DAMAGED_PRODUCT' THEN 1 ELSE 0 END) AS damaged_count
+        FROM refunds r
+        JOIN order_items oi ON r.order_id = oi.order_id
+        JOIN orders o ON r.order_id = o.id
+        WHERE o.order_date BETWEEN ? AND ? AND o.status != 'CANCELLED'
+        GROUP BY oi.product_id
+      ) ref
+      JOIN products p ON ref.product_id = p.id
       JOIN suppliers s ON p.supplier_id = s.id
-      JOIN order_items oi ON p.id = oi.product_id
-      JOIN orders o ON oi.order_id = o.id
-      LEFT JOIN refunds r ON oi.order_id = r.order_id
-      WHERE o.order_date BETWEEN ? AND ? AND o.status != 'CANCELLED'
-      GROUP BY p.id, p.sku, p.name, s.name
-      HAVING refund_count > 0
+      LEFT JOIN (
+        SELECT 
+          oi.product_id,
+          SUM(oi.quantity) AS units_sold,
+          COUNT(DISTINCT oi.order_id) AS order_count
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.id
+        WHERE o.order_date BETWEEN ? AND ? AND o.status != 'CANCELLED'
+        GROUP BY oi.product_id
+      ) sales ON p.id = sales.product_id
       ORDER BY refund_rate_pct DESC
     `;
-    const rows = await query(sql, [fromSql, toSql]);
+    const rows = await query(sql, [fromSql, toSql, fromSql, toSql]);
     return rows.map(r => ({
       productId: r.product_id,
       sku: r.sku,
@@ -94,20 +110,34 @@ class RefundMetrics {
   async getCityRefundRates(fromSql, toSql) {
     const sql = `
       SELECT 
-        o.shipping_city AS city,
-        o.shipping_state AS state,
-        COUNT(DISTINCT o.id) AS total_orders,
-        COUNT(DISTINCT r.id) AS refund_count,
-        COALESCE(SUM(r.amount), 0) AS refund_amount,
-        ROUND((COUNT(DISTINCT r.id) / COUNT(DISTINCT o.id)) * 100, 2) AS refund_rate_pct,
-        SUM(CASE WHEN r.reason_code = 'DELIVERY_DELAY' THEN 1 ELSE 0 END) AS delay_refunds
-      FROM orders o
-      LEFT JOIN refunds r ON o.id = r.order_id
-      WHERE o.order_date BETWEEN ? AND ? AND o.status != 'CANCELLED'
-      GROUP BY o.shipping_city, o.shipping_state
+        o_city.shipping_city AS city,
+        o_city.shipping_state AS state,
+        o_city.total_orders,
+        COALESCE(r_city.refund_count, 0) AS refund_count,
+        COALESCE(r_city.refund_amount, 0) AS refund_amount,
+        ROUND((COALESCE(r_city.refund_count, 0) / o_city.total_orders) * 100, 2) AS refund_rate_pct,
+        COALESCE(r_city.delay_refunds, 0) AS delay_refunds
+      FROM (
+        SELECT shipping_city, shipping_state, COUNT(id) AS total_orders
+        FROM orders
+        WHERE order_date BETWEEN ? AND ? AND status != 'CANCELLED'
+        GROUP BY shipping_city, shipping_state
+      ) o_city
+      LEFT JOIN (
+        SELECT 
+          o.shipping_city,
+          o.shipping_state,
+          COUNT(r.id) AS refund_count,
+          SUM(r.amount) AS refund_amount,
+          SUM(CASE WHEN r.reason_code = 'DELIVERY_DELAY' THEN 1 ELSE 0 END) AS delay_refunds
+        FROM refunds r
+        JOIN orders o ON r.order_id = o.id
+        WHERE o.order_date BETWEEN ? AND ? AND o.status != 'CANCELLED'
+        GROUP BY o.shipping_city, o.shipping_state
+      ) r_city ON o_city.shipping_city = r_city.shipping_city AND o_city.shipping_state = r_city.shipping_state
       ORDER BY refund_rate_pct DESC
     `;
-    const rows = await query(sql, [fromSql, toSql]);
+    const rows = await query(sql, [fromSql, toSql, fromSql, toSql]);
     return rows.map(r => ({
       city: r.city,
       state: r.state,

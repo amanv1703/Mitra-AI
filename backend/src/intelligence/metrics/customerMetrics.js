@@ -33,6 +33,13 @@ class CustomerMetrics {
     const sql = `
       WITH max_date AS (
         SELECT COALESCE(MAX(order_date), NOW()) AS ref_date FROM orders
+      ),
+      failed_payments_30d AS (
+        SELECT p.customer_id, COUNT(p.id) AS recent_payment_failures
+        FROM payments p
+        CROSS JOIN max_date md
+        WHERE p.status = 'FAILED' AND p.initiated_at >= DATE_SUB(md.ref_date, INTERVAL 30 DAY)
+        GROUP BY p.customer_id
       )
       SELECT 
         c.id AS customer_id,
@@ -45,12 +52,12 @@ class CustomerMetrics {
         c.total_spend,
         c.last_order_date,
         DATEDIFF(md.ref_date, c.last_order_date) AS days_since_last_order,
-        COUNT(CASE WHEN p.status = 'FAILED' AND p.initiated_at >= DATE_SUB(md.ref_date, INTERVAL 30 DAY) THEN 1 END) AS recent_payment_failures
+        COALESCE(fp.recent_payment_failures, 0) AS recent_payment_failures
       FROM customers c
       CROSS JOIN max_date md
-      LEFT JOIN payments p ON c.id = p.customer_id
-      GROUP BY c.id, c.customer_code, c.first_name, c.last_name, c.email, c.city, c.segment, c.total_orders_count, c.total_spend, c.last_order_date, md.ref_date
-      HAVING (days_since_last_order >= 25 AND recent_payment_failures >= 2) OR (days_since_last_order >= 45)
+      LEFT JOIN failed_payments_30d fp ON c.id = fp.customer_id
+      WHERE (DATEDIFF(md.ref_date, c.last_order_date) >= 25 AND COALESCE(fp.recent_payment_failures, 0) >= 2)
+         OR (DATEDIFF(md.ref_date, c.last_order_date) >= 45)
       ORDER BY c.total_spend DESC
     `;
     const rows = await query(sql);

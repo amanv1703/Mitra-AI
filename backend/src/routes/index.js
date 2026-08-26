@@ -18,6 +18,7 @@ const detectionRoutes = require('./detectionRoutes');
 const intelligenceRoutes = require('./intelligenceRoutes');
 const aiRoutes = require('./aiRoutes');
 const demoRoutes = require('./demoRoutes');
+const categoryRoutes = require('./categoryRoutes');
 
 // Mount Sub-Routes
 router.use('/health', healthRoutes);
@@ -27,6 +28,7 @@ router.use('/orders', orderRoutes);
 router.use('/inventory', inventoryRoutes);
 router.use('/customers', customerRoutes);
 router.use('/products', productRoutes);
+router.use('/categories', categoryRoutes);
 router.use('/refunds', refundRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/detections', detectionRoutes);

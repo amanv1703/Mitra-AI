@@ -6,11 +6,9 @@ const refundMetrics = require('../metrics/refundMetrics');
 const { ANOMALY_THRESHOLDS } = require('../config/intelligenceConfig');
 
 class RefundAnomalies {
-  async detectRefundAnomalies(fromSql, toSql) {
-    const [productRefunds, cityRefunds] = await Promise.all([
-      refundMetrics.getProductRefundRates(fromSql, toSql),
-      refundMetrics.getCityRefundRates(fromSql, toSql)
-    ]);
+  async detectRefundAnomalies(fromSql, toSql, precalculated = {}) {
+    const productRefunds = precalculated.productRefunds || await refundMetrics.getProductRefundRates(fromSql, toSql);
+    const cityRefunds = precalculated.cityRefunds || await refundMetrics.getCityRefundRates(fromSql, toSql);
 
     const anomalies = [];
     const thresholdPct = ANOMALY_THRESHOLDS.REFUND_RATE.CRITICAL_RATE_PCT;

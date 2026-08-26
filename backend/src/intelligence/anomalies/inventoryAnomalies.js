@@ -6,8 +6,8 @@ const inventoryMetrics = require('../metrics/inventoryMetrics');
 const { ANOMALY_THRESHOLDS } = require('../config/intelligenceConfig');
 
 class InventoryAnomalies {
-  async detectInventoryAnomalies() {
-    const products = await inventoryMetrics.getProductVelocityMatrix();
+  async detectInventoryAnomalies(precalculatedProducts = null) {
+    const products = precalculatedProducts || await inventoryMetrics.getProductVelocityMatrix();
     const anomalies = [];
 
     const criticalRisks = products.filter(p => 
