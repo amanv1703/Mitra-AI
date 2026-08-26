@@ -1,7 +1,8 @@
 const path = require('path');
 const dotenv = require('dotenv');
 
-// Look for .env in current working dir, then parent root dir
+// Look for .env in backend dir first, then current working dir, then parent root dir
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 dotenv.config();
 dotenv.config({ path: path.join(__dirname, '..', '..', '..', '.env') });
 
