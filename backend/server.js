@@ -17,34 +17,37 @@ const apiRoutes = require('./src/routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Security & utility middleware
-app.use(helmet());
+process.on('uncaughtException', (err) => {
+  console.error('💥 Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 Unhandled Rejection:', reason);
+});
 
-// Dynamic CORS configuration (automatically supports Vercel, localhost, and custom CLIENT_URLs)
-const rawClientUrl = process.env.CLIENT_URL || 'http://localhost:5173,https://mitra-ai-neon.vercel.app';
-const allowedOrigins = rawClientUrl.split(',').map(url => url.trim()).filter(Boolean);
+// 1. CORS headers on ALL requests and preflight OPTIONS
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept,Origin');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow server-to-server, curl, mobile apps, or any web frontend
-    if (!origin) return callback(null, true);
-    if (
-      origin.endsWith('.vercel.app') ||
-      origin.includes('localhost') ||
-      origin.includes('127.0.0.1') ||
-      allowedOrigins.includes('*') ||
-      allowedOrigins.includes(origin) ||
-      allowedOrigins.some(o => origin.startsWith(o))
-    ) {
-      return callback(null, true);
-    }
-    // Fallback: reflect valid origin
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+  origin: true,
+  credentials: true
 }));
+
+// Security & utility middleware
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json({ limit: '2mb' }));
 app.use(requestLogger);
 
